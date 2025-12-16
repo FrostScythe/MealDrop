@@ -1,4 +1,4 @@
-# Restaurant Management API
+# Food Ordering API
 
 A Spring Boot REST API for managing restaurants, users, menu items, and orders.
 
@@ -381,4 +381,5 @@ order-api/
 - Order status tracking
 - Search and filter capabilities
 - Pagination for list endpoints
+
 
