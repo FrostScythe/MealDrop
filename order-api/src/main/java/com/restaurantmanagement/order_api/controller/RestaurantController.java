@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// In RestaurantController.java - Fix the endpoints
 
 @RestController
 @RequestMapping("/api/restaurants")

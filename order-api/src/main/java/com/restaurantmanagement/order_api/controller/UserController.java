@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequestMapping("/api/users")
@@ -23,11 +25,11 @@ public class UserController {
     }
 
     // READ - Get all users (admin endpoint)
-//    @GetMapping
-//    public ResponseEntity<List<User>> getAllUsers() {
-//        List<User> users = userService.getAllUsers();
-//        return ResponseEntity.ok(users);
-//    }
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
 
     // READ - Get user by ID
     @GetMapping("/{id}")
