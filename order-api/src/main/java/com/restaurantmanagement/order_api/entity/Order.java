@@ -47,7 +47,8 @@ public class Order {
     @LastModifiedDate
     private LocalDateTime deliveryAt;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private OrderStatus status;
 
     // Getters and Setters
 
@@ -115,11 +116,11 @@ public class Order {
         this.deliveryAt = deliveryAt;
     }
 
-    public String getStatus() {
+    public OrderStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(OrderStatus status) {
         this.status = status;
     }
 }
