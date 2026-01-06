@@ -2,7 +2,7 @@ package com.restaurantmanagement.order_api.service.imp;
 
 import com.restaurantmanagement.order_api.entity.*;
 import com.restaurantmanagement.order_api.entity.MenuItem;
-import com.restaurantmanagement.order_api.exception.OrderNotFoundException;
+import com.restaurantmanagement.order_api.exception.NotFoundException;
 import com.restaurantmanagement.order_api.repository.MenuItemRepository;
 import com.restaurantmanagement.order_api.repository.OrderRepository;
 import com.restaurantmanagement.order_api.repository.RestaurantRepository;
@@ -11,7 +11,6 @@ import com.restaurantmanagement.order_api.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,6 @@ public class OrderServiceImp implements OrderService {
 
     @Override
     public Order placeOrder(Long userId,Long restaurantId,Map<Long, Integer> itemsWithQuantity) {
-//
         // 1️⃣ Fetch User
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -78,7 +76,7 @@ public class OrderServiceImp implements OrderService {
 
     @Override
     public Order getOrderById(Long orderId) {
-        return orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+        return orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException(orderId));
     }
 
     @Override
@@ -89,7 +87,7 @@ public class OrderServiceImp implements OrderService {
     @Override
     public Order updateOrderStatus(Long orderId, OrderStatus newStatus) {
         Order info = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException(orderId));
+                .orElseThrow(() -> new NotFoundException(orderId));
 
 
         OrderStatus currStatus= info.getStatus();
