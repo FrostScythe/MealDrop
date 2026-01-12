@@ -2,6 +2,7 @@ package com.restaurantmanagement.order_api.service.imp;
 
 import com.restaurantmanagement.order_api.entity.*;
 import com.restaurantmanagement.order_api.entity.MenuItem;
+import com.restaurantmanagement.order_api.exception.BadRequestException;
 import com.restaurantmanagement.order_api.exception.InvalidOrderStateException;
 import com.restaurantmanagement.order_api.exception.NotFoundException;
 import com.restaurantmanagement.order_api.repository.MenuItemRepository;
@@ -41,6 +42,11 @@ public class OrderServiceImp implements OrderService {
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new NotFoundException("Restaurant", restaurantId));
 
+        // Validate input - add this at the start
+        if (itemsWithQuantity == null || itemsWithQuantity.isEmpty()) {
+            throw new BadRequestException("Order must contain at least one item");
+        }
+
         double totalPrice = 0;
         int totalItemCount = 0;
         List<MenuItem> orderedItems = new ArrayList<>();
@@ -49,6 +55,11 @@ public class OrderServiceImp implements OrderService {
         for (Map.Entry<Long, Integer> entry : itemsWithQuantity.entrySet()) {
             Long menuItemId = entry.getKey();
             Integer quantity = entry.getValue();
+
+            // this validation
+            if (quantity == null || quantity <= 0) {
+                throw new BadRequestException("Quantity must be greater than 0 for menu item: " + menuItemId);
+            }
 
             // Fetch MenuItem - use NotFoundException
             MenuItem item = menuItemRepository.findById(menuItemId)
