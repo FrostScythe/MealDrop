@@ -39,7 +39,6 @@ public class OrderServiceImp implements OrderService {
     public Order placeOrder(Long userId, Long restaurantId,
                             Map<Long, Integer> itemsWithQuantity) {
 
-        // Validate input
         if (itemsWithQuantity == null || itemsWithQuantity.isEmpty()) {
             throw new BadRequestException("Order must contain at least one item");
         }
@@ -51,7 +50,7 @@ public class OrderServiceImp implements OrderService {
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new NotFoundException("Restaurant", restaurantId));
 
-        // NEW: Validate restaurant operating hours (throws RestaurantClosedException if closed)
+        //Validate restaurant operating hours
         restaurant.validateOperatingHours();
 
         double totalPrice = 0;
@@ -67,11 +66,9 @@ public class OrderServiceImp implements OrderService {
                 throw new BadRequestException("Invalid quantity for menu item: " + menuItemId);
             }
 
-            // LOCK the menu item row
             MenuItem menuItem = menuItemRepository.findByIdWithLock(menuItemId)
                     .orElseThrow(() -> new NotFoundException("MenuItem", menuItemId));
 
-            // Verify restaurant
             if (!menuItem.getRestaurant().getId().equals(restaurantId)) {
                 throw new BadRequestException(
                         "MenuItem " + menuItemId + " does not belong to this restaurant");

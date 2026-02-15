@@ -47,7 +47,7 @@ public class MenuItemService {
         return menuItem;
     }
 
-    // Add this method for getting restaurant menu
+    // Getting restaurant menu
     public List<MenuItem> getMenuByRestaurant(Long restaurantId) {
         if (!restaurantRepository.existsById(restaurantId)) {
             throw new NotFoundException("Restaurant", restaurantId);
@@ -56,7 +56,7 @@ public class MenuItemService {
         return menuItemRepository.findByRestaurantId(restaurantId);
     }
 
-    // Return MenuItem instead of String
+    // Update menu item
     public MenuItem updateMenuItem(Long restaurantId, Long menuItemId, MenuItem updatedItem) {
         MenuItem existingItem = getMenuItem(restaurantId, menuItemId);
 
@@ -71,7 +71,7 @@ public class MenuItemService {
         return menuItemRepository.save(existingItem);
     }
 
-    // Return void instead of String
+    // Delete menu item
     public void deleteMenuItem(Long restaurantId, Long menuItemId) {
         MenuItem menuItem = getMenuItem(restaurantId, menuItemId);
         menuItemRepository.delete(menuItem);

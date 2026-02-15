@@ -19,12 +19,12 @@ public class RestaurantService {
     @Autowired
     private MenuItemService menuItemService;  // Add this dependency
 
-    // Return Restaurant instead of String
+    // Register Restaurant
     public Restaurant registerRestaurant(Restaurant restaurant) {
         return restaurantRepository.save(restaurant);
     }
 
-    // Return Restaurant instead of String
+    // Get Restaurant
     public Restaurant getRestaurantDetails(Long restaurantId) {
         return restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new NotFoundException("Restaurant",restaurantId));
@@ -34,7 +34,7 @@ public class RestaurantService {
         return restaurantRepository.findAll();
     }
 
-    // Return Restaurant instead of String
+    // Update restaurant details
     public Restaurant updateRestaurantDetails(Long restaurantId, Restaurant updatedRestaurant) {
         Restaurant existingRestaurant = getRestaurantDetails(restaurantId);
 
@@ -53,7 +53,7 @@ public class RestaurantService {
         return restaurantRepository.save(existingRestaurant);
     }
 
-    // Return void instead of String
+    // Delete restaurant
     public void deleteRestaurant(Long restaurantId) {
         if (!restaurantRepository.existsById(restaurantId)) {
             throw new NotFoundException("Restaurant", restaurantId);

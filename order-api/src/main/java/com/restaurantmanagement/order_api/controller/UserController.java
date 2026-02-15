@@ -52,15 +52,4 @@ public class UserController {
         String user= userService.deleteUser(id);
         return ResponseEntity.ok(user);
     }
-
-    // GET user's orders
-    @GetMapping("/{id}/orders")
-    public ResponseEntity<?> getUserOrders(@PathVariable Long id) {
-        // This depends on your UserService method
-        // If you have: userService.getUserOrders(id)
-        // return ResponseEntity.ok(orders);
-
-        // For now, return message
-        return ResponseEntity.ok("Orders for user " + id + " (implement in service)");
-    }
 }
