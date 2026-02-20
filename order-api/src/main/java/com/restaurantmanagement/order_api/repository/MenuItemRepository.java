@@ -1,6 +1,6 @@
 package com.restaurantmanagement.order_api.repository;
 
-import com.restaurantmanagement.order_api.entity.MenuItem;
+import com.restaurantmanagement.order_api.model.MenuItem;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;

@@ -1,6 +1,6 @@
 package com.restaurantmanagement.order_api.service.imp;
 
-import com.restaurantmanagement.order_api.entity.*;
+import com.restaurantmanagement.order_api.model.*;
 import com.restaurantmanagement.order_api.exception.BadRequestException;
 import com.restaurantmanagement.order_api.exception.InvalidOrderStateException;
 import com.restaurantmanagement.order_api.exception.NotFoundException;

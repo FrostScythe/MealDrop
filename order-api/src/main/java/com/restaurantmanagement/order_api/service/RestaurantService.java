@@ -1,7 +1,7 @@
 package com.restaurantmanagement.order_api.service;
 
-import com.restaurantmanagement.order_api.entity.MenuItem;
-import com.restaurantmanagement.order_api.entity.Restaurant;
+import com.restaurantmanagement.order_api.model.MenuItem;
+import com.restaurantmanagement.order_api.model.Restaurant;
 import com.restaurantmanagement.order_api.exception.BadRequestException;
 import com.restaurantmanagement.order_api.exception.NotFoundException;
 import com.restaurantmanagement.order_api.repository.RestaurantRepository;

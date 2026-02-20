@@ -1,6 +1,6 @@
 package com.restaurantmanagement.order_api.controller;
 
-import com.restaurantmanagement.order_api.entity.User;
+import com.restaurantmanagement.order_api.model.User;
 import com.restaurantmanagement.order_api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

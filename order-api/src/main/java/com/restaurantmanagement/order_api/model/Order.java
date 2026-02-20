@@ -1,4 +1,4 @@
-package com.restaurantmanagement.order_api.entity;
+package com.restaurantmanagement.order_api.model;
 
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;

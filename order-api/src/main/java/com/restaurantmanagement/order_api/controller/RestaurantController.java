@@ -1,7 +1,7 @@
 package com.restaurantmanagement.order_api.controller;
 
-import com.restaurantmanagement.order_api.entity.MenuItem;
-import com.restaurantmanagement.order_api.entity.Restaurant;
+import com.restaurantmanagement.order_api.model.MenuItem;
+import com.restaurantmanagement.order_api.model.Restaurant;
 import com.restaurantmanagement.order_api.service.RestaurantService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,8 +1,8 @@
 package com.restaurantmanagement.order_api.service;
 
 
-import com.restaurantmanagement.order_api.entity.Order;
-import com.restaurantmanagement.order_api.entity.OrderStatus;
+import com.restaurantmanagement.order_api.model.Order;
+import com.restaurantmanagement.order_api.model.OrderStatus;
 
 import java.util.List;
 import java.util.Map;

@@ -6,3 +6,8 @@ spring:
       host: localhost
       port: 27017
       database: mealdrop
+
+# GCP Configuration
+gcp:
+  project-id: ${PROJECT_ID}
+  bucket-name: ${BUCKET_NAME}

@@ -1,4 +1,4 @@
-package com.restaurantmanagement.order_api.entity;
+package com.restaurantmanagement.order_api.model;
 
 import com.restaurantmanagement.order_api.exception.BadRequestException;
 import jakarta.persistence.*;

@@ -1,6 +1,6 @@
 package com.restaurantmanagement.order_api.service;
 
-import com.restaurantmanagement.order_api.entity.User;
+import com.restaurantmanagement.order_api.model.User;
 import com.restaurantmanagement.order_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
