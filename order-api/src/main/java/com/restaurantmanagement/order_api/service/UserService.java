@@ -15,7 +15,7 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public String registerUser(@RequestBody User user) {
+    public String registerUser(User user) {
         userRepository.save(user);
         // Logic to register a new user
         return "User registered successfully";
@@ -30,7 +30,7 @@ public class UserService {
         }
     }
 
-    public String updateUserDetails(Long userId, @RequestBody User updatedUser) {
+    public String updateUserDetails(Long userId, User updatedUser) {
         Optional<User> existingUserOptional = userRepository.findById(userId);
 
         if (existingUserOptional.isPresent()) {
@@ -53,7 +53,7 @@ public class UserService {
             userRepository.save(existingUser);
             return "User details updated successfully";
         } else {
-            return "User not found";
+            throw new NotFoundException("User", userId);
         }
     }
 
@@ -62,7 +62,7 @@ public class UserService {
             userRepository.deleteById(userId);
             return "User deleted successfully";
         } else {
-            return "User not found";
+            throw new NotFoundException("User", userId);
         }
     }
 

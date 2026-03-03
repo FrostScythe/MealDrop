@@ -116,7 +116,7 @@ public class OrderServiceImp implements OrderService {
 
     @Override
     public List<Order> getOrdersByUser(Long userId) {
-        return orderRepository.findByUserId(userId);
+        return orderRepository.findByUser_Id(userId);
     }
 
     @Override
