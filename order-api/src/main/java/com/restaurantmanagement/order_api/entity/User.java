@@ -2,6 +2,9 @@ package com.restaurantmanagement.order_api.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+
 import java.util.List;
 
 @Entity
@@ -13,9 +16,12 @@ public class User {
     private Long id;
 
     @Column(nullable = false)
+    @NotBlank(message = "Name is required")
     private String name;
 
     @Column(nullable = false, unique = true)
+    @Email(message = "Invalid email format")
+    @NotBlank
     private String email;
 
     @Column(nullable = false, unique = true)

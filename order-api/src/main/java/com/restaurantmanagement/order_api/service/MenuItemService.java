@@ -66,6 +66,16 @@ public class MenuItemService {
             throw new BadRequestException("Price cannot be negative");
         } else existingItem.setPrice(cost);
 
+        Integer stock = updatedItem.getStockQuantity();
+        if (stock != null && stock < 0) {
+            throw new BadRequestException("Stock quantity cannot be negative");
+        } else existingItem.setStockQuantity(stock);
+
+        boolean avilable = updatedItem.isAvailable();
+        if (stock != null && stock == 0) {
+            existingItem.setAvailable(false);
+        } else existingItem.setAvailable(avilable);
+
         existingItem.setDescription(updatedItem.getDescription());
 
         return menuItemRepository.save(existingItem);

@@ -2,6 +2,7 @@ package com.restaurantmanagement.order_api.controller;
 
 import com.restaurantmanagement.order_api.entity.User;
 import com.restaurantmanagement.order_api.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,7 @@ public class UserController {
 
     // CREATE - Register new user
     @PostMapping("/register")
-    public ResponseEntity<String> createUser(@RequestBody User user) {
+    public ResponseEntity<String> createUser(@Valid @RequestBody User user) {
         String createdUser = userService.registerUser(user);
         return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
     }

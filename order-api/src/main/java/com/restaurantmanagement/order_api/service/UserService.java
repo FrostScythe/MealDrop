@@ -1,6 +1,7 @@
 package com.restaurantmanagement.order_api.service;
 
 import com.restaurantmanagement.order_api.entity.User;
+import com.restaurantmanagement.order_api.exception.NotFoundException;
 import com.restaurantmanagement.order_api.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class UserService {
         if(foundUser.isPresent()){
             return "User Details: Name - " + foundUser.get().getName() + ", Email - " + foundUser.get().getEmail();
         } else {
-            return "User not found";
+            throw new NotFoundException("User", userId);
         }
     }
 

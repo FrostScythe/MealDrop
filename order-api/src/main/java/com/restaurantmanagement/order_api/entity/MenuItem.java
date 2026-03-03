@@ -22,7 +22,7 @@ public class MenuItem {
 
     // Inventory management fields
     @Column(nullable = false)
-    private Integer stockQuantity = 100; // Default: 100 items in stock
+    private Integer stockQuantity = 20; // Default: 100 items in stock
 
     @Column(nullable = false)
     private boolean available = true; // Is item available for ordering?
