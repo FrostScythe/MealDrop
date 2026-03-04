@@ -1,7 +1,9 @@
 package com.restaurantmanagement.order_api.dto.request;
 
+import com.restaurantmanagement.order_api.entity.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -21,6 +23,9 @@ public class UserRegisterRequest {
 
     @NotBlank(message = "Address is required")
     private String address;
+
+    @NotNull(message = "Role is required")
+    private Role role;
 
     // getters & setters
 }

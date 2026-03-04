@@ -15,6 +15,6 @@ public class RestaurantResponse {
     private LocalTime closingTime;
     private Integer preparationTimeMinutes;
     private boolean isOpen;
-    private String currentStatus;   // ← include the computed status string
+    private String currentStatus;
     // getters & setters
 }

@@ -13,9 +13,6 @@ import lombok.NoArgsConstructor;
 public class PlaceOrderRequest {
 
     @NotEmpty(message = "Order must contain at least one item")
-    private Map
-    @NotNull Long,
-    @Min(1) Integer> items;
-
+    private Map<@NotNull Long, @Min(1) Integer> items;
     // getter & setter
 }

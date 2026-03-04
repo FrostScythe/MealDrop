@@ -25,7 +25,8 @@ public class User {
     private String email;
 
     @Enumerated(EnumType.STRING)
-    private String role;
+    @Column(nullable = false)
+    private Role role = Role.CUSTOMER;
 
     @Column(nullable = false, unique = true)
     private String phoneNumber;
@@ -63,6 +64,9 @@ public class User {
     public void setEmail(String email) {
         this.email = email;
     }
+
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
 
     public String getPhoneNumber() {
         return phoneNumber;

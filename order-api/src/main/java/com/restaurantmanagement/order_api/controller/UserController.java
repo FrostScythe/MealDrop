@@ -1,5 +1,8 @@
 package com.restaurantmanagement.order_api.controller;
 
+import com.restaurantmanagement.order_api.dto.request.UserRegisterRequest;
+import com.restaurantmanagement.order_api.dto.response.UserResponse;
+import com.restaurantmanagement.order_api.entity.Role;
 import com.restaurantmanagement.order_api.entity.User;
 import com.restaurantmanagement.order_api.service.UserService;
 import jakarta.validation.Valid;
@@ -19,10 +22,19 @@ public class UserController {
     private UserService userService;
 
     // CREATE - Register new user
+    // Public endpoint — no auth needed
     @PostMapping("/register")
-    public ResponseEntity<String> createUser(@Valid @RequestBody User user) {
-        String createdUser = userService.registerUser(user);
-        return new ResponseEntity<>(createdUser, HttpStatus.CREATED);
+    public ResponseEntity<UserResponse> register(
+            @Valid @RequestBody UserRegisterRequest request) {
+        return ResponseEntity.ok(userService.registerUser(request, Role.CUSTOMER));
+    }
+
+    // Protected endpoint — ADMIN only (after Security is added)
+    @PostMapping("/register/owner")
+    // @PreAuthorize("hasRole('ADMIN')")  ← uncomment after Security
+    public ResponseEntity<UserResponse> registerOwner(
+            @Valid @RequestBody UserRegisterRequest request) {
+        return ResponseEntity.ok(userService.registerUser(request, Role.OWNER));
     }
 
     // READ - Get all users (admin endpoint)
@@ -34,17 +46,16 @@ public class UserController {
 
     // READ - Get user by ID
     @GetMapping("/{id}")
-    public ResponseEntity<String> getUserById(@PathVariable Long id) {
-        String user = userService.getUserDetails(id);
-        return ResponseEntity.ok(user);
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     // UPDATE - Update user details
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateUser(@PathVariable Long id, @RequestBody User user) {
-        user.setId(id); // Ensure ID matches path
-        String updatedUser = userService.updateUserDetails(id,user);
-        return ResponseEntity.ok(updatedUser);
+    public ResponseEntity<UserResponse> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody UserRegisterRequest request) {
+        return ResponseEntity.ok(userService.updateUserDetails(id, request));
     }
 
     // DELETE - Delete user

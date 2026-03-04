@@ -1,8 +1,10 @@
 package com.restaurantmanagement.order_api.controller;
 
+import com.restaurantmanagement.order_api.dto.request.RestaurantRequest;
+import com.restaurantmanagement.order_api.dto.response.RestaurantResponse;
 import com.restaurantmanagement.order_api.entity.MenuItem;
-import com.restaurantmanagement.order_api.entity.Restaurant;
 import com.restaurantmanagement.order_api.service.RestaurantService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,29 +22,29 @@ public class RestaurantController {
 
     // CREATE - Register new restaurant
     @PostMapping
-    public ResponseEntity<Restaurant> createRestaurant(@RequestBody Restaurant restaurant) {
-        Restaurant createdRestaurant = restaurantService.registerRestaurant(restaurant);
+    public ResponseEntity<RestaurantResponse> createRestaurant(@Valid @RequestBody RestaurantRequest request) {
+        RestaurantResponse createdRestaurant = restaurantService.registerRestaurant(request);
         return new ResponseEntity<>(createdRestaurant, HttpStatus.CREATED);
     }
 
     // READ - Get all restaurants
     @GetMapping
-    public ResponseEntity<List<Restaurant>> getAllRestaurants() {
-        List<Restaurant> restaurants = restaurantService.getAllRestaurants();
+    public ResponseEntity<List<RestaurantResponse>> getAllRestaurants() {
+        List<RestaurantResponse> restaurants = restaurantService.getAllRestaurants();
         return ResponseEntity.ok(restaurants);
     }
 
     // READ - Get restaurant by ID
     @GetMapping("/{id}")
-    public ResponseEntity<Restaurant> getRestaurantById(@PathVariable Long id) {
-        Restaurant restaurant = restaurantService.getRestaurantDetails(id);
+    public ResponseEntity<RestaurantResponse> getRestaurantById(@PathVariable Long id) {
+        RestaurantResponse restaurant = restaurantService.getRestaurantDetails(id);
         return ResponseEntity.ok(restaurant);
     }
 
     // UPDATE - Update restaurant details
     @PutMapping("/{id}")
-    public ResponseEntity<Restaurant> updateRestaurant(@PathVariable Long id, @RequestBody Restaurant restaurant) {
-        Restaurant updatedRestaurant = restaurantService.updateRestaurantDetails(id, restaurant);
+    public ResponseEntity<RestaurantResponse> updateRestaurant(@PathVariable Long id, @Valid @RequestBody RestaurantRequest request) {
+        RestaurantResponse updatedRestaurant = restaurantService.updateRestaurantDetails(id, request);
         return ResponseEntity.ok(updatedRestaurant);
     }
 

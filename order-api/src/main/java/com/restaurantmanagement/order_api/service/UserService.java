@@ -1,5 +1,8 @@
 package com.restaurantmanagement.order_api.service;
 
+import com.restaurantmanagement.order_api.dto.request.UserRegisterRequest;
+import com.restaurantmanagement.order_api.dto.response.UserResponse;
+import com.restaurantmanagement.order_api.entity.Role;
 import com.restaurantmanagement.order_api.entity.User;
 import com.restaurantmanagement.order_api.exception.NotFoundException;
 import com.restaurantmanagement.order_api.repository.UserRepository;
@@ -15,46 +18,41 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public String registerUser(User user) {
-        userRepository.save(user);
-        // Logic to register a new user
-        return "User registered successfully";
+    private UserResponse toResponse(User user) {
+        UserResponse response = new UserResponse();
+        response.setId(user.getId());
+        response.setName(user.getName());
+        response.setEmail(user.getEmail());
+        response.setPhoneNumber(user.getPhoneNumber());
+        response.setAddress(user.getAddress());
+        return response;
     }
 
-    public String getUserDetails(Long userId){
-        Optional<User> foundUser = userRepository.findById(userId);
-        if(foundUser.isPresent()){
-            return "User Details: Name - " + foundUser.get().getName() + ", Email - " + foundUser.get().getEmail();
-        } else {
-            throw new NotFoundException("User", userId);
-        }
+    public UserResponse registerUser(UserRegisterRequest request, Role role) {
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setAddress(request.getAddress());
+        user.setRole(role);  // role comes from the endpoint, not the request body
+        User saved = userRepository.save(user);
+        return toResponse(saved);
     }
 
-    public String updateUserDetails(Long userId, User updatedUser) {
-        Optional<User> existingUserOptional = userRepository.findById(userId);
+    public UserResponse getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User", userId));
+        return toResponse(user);
+    }
 
-        if (existingUserOptional.isPresent()) {
-            User existingUser = existingUserOptional.get();
-
-            // Consider partial updates and validation
-            if (updatedUser.getName() != null) {
-                existingUser.setName(updatedUser.getName());
-            }
-            if (updatedUser.getEmail() != null) {
-                existingUser.setEmail(updatedUser.getEmail());
-            }
-            if (updatedUser.getPhoneNumber() != null) {
-                existingUser.setPhoneNumber(updatedUser.getPhoneNumber());
-            }
-            if (updatedUser.getAddress() != null) {
-                existingUser.setAddress(updatedUser.getAddress());
-            }
-
-            userRepository.save(existingUser);
-            return "User details updated successfully";
-        } else {
-            throw new NotFoundException("User", userId);
-        }
+    public UserResponse updateUserDetails(Long userId, UserRegisterRequest request) {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User", userId));
+        if (request.getName() != null) existingUser.setName(request.getName());
+        if (request.getEmail() != null) existingUser.setEmail(request.getEmail());
+        if (request.getPhoneNumber() != null) existingUser.setPhoneNumber(request.getPhoneNumber());
+        if (request.getAddress() != null) existingUser.setAddress(request.getAddress());
+        return toResponse(userRepository.save(existingUser));
     }
 
     public String deleteUser(Long userId) {
