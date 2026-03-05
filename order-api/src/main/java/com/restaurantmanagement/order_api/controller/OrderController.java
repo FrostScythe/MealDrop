@@ -1,14 +1,16 @@
 package com.restaurantmanagement.order_api.controller;
 
-import com.restaurantmanagement.order_api.entity.Order;
+import com.restaurantmanagement.order_api.dto.request.PlaceOrderRequest;
+import com.restaurantmanagement.order_api.dto.response.OrderResponse;
 import com.restaurantmanagement.order_api.entity.OrderStatus;
 import com.restaurantmanagement.order_api.service.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -17,33 +19,30 @@ public class OrderController {
     @Autowired
     private OrderService orderService;
 
-    // Place Order
     @PostMapping("/place-order")
-    public Order placeOrder(
+    public ResponseEntity<OrderResponse> placeOrder(
             @RequestParam Long userId,
             @RequestParam Long restaurantId,
-            @RequestBody Map<Long, Integer> itemsWithQuantity) {
-
-        return orderService.placeOrder(userId, restaurantId, itemsWithQuantity);
+            @Valid @RequestBody PlaceOrderRequest request) {
+        return new ResponseEntity<>(
+                orderService.placeOrder(userId, restaurantId, request),
+                HttpStatus.CREATED);
     }
 
-
-    // Get Order by ID
     @GetMapping("/{orderId}")
-    public Order getOrderById(@PathVariable Long orderId) {
-        return orderService.getOrderById(orderId);
+    public ResponseEntity<OrderResponse> getOrderById(@PathVariable Long orderId) {
+        return ResponseEntity.ok(orderService.getOrderById(orderId));
     }
 
-    // Get all orders of a user
     @GetMapping("/user/{userId}")
-    public List<Order> getOrdersByUser(@PathVariable Long userId) {
-        return orderService.getOrdersByUser(userId);
+    public ResponseEntity<List<OrderResponse>> getOrdersByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(orderService.getOrdersByUser(userId));
     }
 
-    //update order status
     @PutMapping("/{orderId}")
-    public ResponseEntity<Order> updateOrderStatus(@PathVariable Long orderId, @RequestParam OrderStatus status) {
-        Order updatedOrder = orderService.updateOrderStatus(orderId, status);
-        return ResponseEntity.ok(updatedOrder);
+    public ResponseEntity<OrderResponse> updateOrderStatus(
+            @PathVariable Long orderId,
+            @RequestParam OrderStatus status) {
+        return ResponseEntity.ok(orderService.updateOrderStatus(orderId, status));
     }
 }

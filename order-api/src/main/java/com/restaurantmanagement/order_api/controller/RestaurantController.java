@@ -1,8 +1,9 @@
 package com.restaurantmanagement.order_api.controller;
 
+import com.restaurantmanagement.order_api.dto.request.MenuItemRequest;
 import com.restaurantmanagement.order_api.dto.request.RestaurantRequest;
+import com.restaurantmanagement.order_api.dto.response.MenuItemResponse;
 import com.restaurantmanagement.order_api.dto.response.RestaurantResponse;
-import com.restaurantmanagement.order_api.entity.MenuItem;
 import com.restaurantmanagement.order_api.service.RestaurantService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,50 +58,41 @@ public class RestaurantController {
 
     // ========== MENU ITEM OPERATIONS ==========
 
-    // GET restaurant's full menu
     @GetMapping("/{restaurantId}/menu")
-    public ResponseEntity<List<MenuItem>> getRestaurantMenu(@PathVariable Long restaurantId) {
-        List<MenuItem> menuItems = restaurantService.getRestaurantMenu(restaurantId);
-        return ResponseEntity.ok(menuItems);
+    public ResponseEntity<List<MenuItemResponse>> getRestaurantMenu(
+            @PathVariable Long restaurantId) {
+        return ResponseEntity.ok(restaurantService.getRestaurantMenu(restaurantId));
     }
 
-    // ADD menu item to restaurant
     @PostMapping("/{restaurantId}/menu")
-    public ResponseEntity<MenuItem> addMenuItemToRestaurant(
+    public ResponseEntity<MenuItemResponse> addMenuItemToRestaurant(
             @PathVariable Long restaurantId,
-            @RequestBody MenuItem menuItem) {
-
-        MenuItem createdMenuItem = restaurantService.addMenuItemToRestaurant(restaurantId, menuItem);
-        return new ResponseEntity<>(createdMenuItem, HttpStatus.CREATED);
+            @Valid @RequestBody MenuItemRequest request) {
+        return new ResponseEntity<>(
+                restaurantService.addMenuItemToRestaurant(restaurantId, request),
+                HttpStatus.CREATED);
     }
 
-    // GET specific menu item from restaurant
     @GetMapping("/{restaurantId}/menu/{menuItemId}")
-    public ResponseEntity<MenuItem> getMenuItem(
+    public ResponseEntity<MenuItemResponse> getMenuItem(
             @PathVariable Long restaurantId,
             @PathVariable Long menuItemId) {
-
-        MenuItem menuItem = restaurantService.getMenuItem(restaurantId, menuItemId);
-        return ResponseEntity.ok(menuItem);
+        return ResponseEntity.ok(restaurantService.getMenuItem(restaurantId, menuItemId));
     }
 
-    // UPDATE menu item
     @PutMapping("/{restaurantId}/menu/{menuItemId}")
-    public ResponseEntity<MenuItem> updateMenuItem(
+    public ResponseEntity<MenuItemResponse> updateMenuItem(
             @PathVariable Long restaurantId,
             @PathVariable Long menuItemId,
-            @RequestBody MenuItem menuItem) {
-
-        MenuItem updatedMenuItem = restaurantService.updateMenuItem(restaurantId, menuItemId, menuItem);
-        return ResponseEntity.ok(updatedMenuItem);
+            @Valid @RequestBody MenuItemRequest request) {
+        return ResponseEntity.ok(
+                restaurantService.updateMenuItem(restaurantId, menuItemId, request));
     }
 
-    // DELETE menu item from restaurant
     @DeleteMapping("/{restaurantId}/menu/{menuItemId}")
     public ResponseEntity<Void> deleteMenuItem(
             @PathVariable Long restaurantId,
             @PathVariable Long menuItemId) {
-
         restaurantService.deleteMenuItem(restaurantId, menuItemId);
         return ResponseEntity.noContent().build();
     }

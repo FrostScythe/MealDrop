@@ -24,8 +24,8 @@ public class UserRegisterRequest {
     @NotBlank(message = "Address is required")
     private String address;
 
-    @NotNull(message = "Role is required")
-    private Role role;
+//    @NotNull(message = "Role is required")
+//    private Role role;
 
     // getters & setters
 }

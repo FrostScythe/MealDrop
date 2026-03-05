@@ -1,5 +1,8 @@
 package com.restaurantmanagement.order_api.service.imp;
 
+import com.restaurantmanagement.order_api.dto.request.PlaceOrderRequest;
+import com.restaurantmanagement.order_api.dto.response.MenuItemResponse;
+import com.restaurantmanagement.order_api.dto.response.OrderResponse;
 import com.restaurantmanagement.order_api.entity.*;
 import com.restaurantmanagement.order_api.exception.BadRequestException;
 import com.restaurantmanagement.order_api.exception.InvalidOrderStateException;
@@ -18,85 +21,98 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImp implements OrderService {
 
-    @Autowired
-    private OrderRepository orderRepository;
+    @Autowired private OrderRepository orderRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private RestaurantRepository restaurantRepository;
+    @Autowired private MenuItemRepository menuItemRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    // ─── Mapper ────────────────────────────────────────────
+    private OrderResponse toResponse(Order order) {
+        OrderResponse response = new OrderResponse();
+        response.setId(order.getId());
+        response.setUserId(order.getUser().getId());
+        response.setUserName(order.getUser().getName());
+        response.setRestaurantId(order.getRestaurant().getId());
+        response.setRestaurantName(order.getRestaurant().getName());
+        response.setItemCount(order.getItemCount());
+        response.setTotalPrice(order.getTotalPrice());
+        response.setStatus(order.getStatus());
+        response.setOrderAt(order.getOrderAt());
+        response.setDeliveryAt(order.getDeliveryAt());
 
-    @Autowired
-    private RestaurantRepository restaurantRepository;
+        // Map each MenuItem entity → MenuItemResponse
+        List<MenuItemResponse> itemResponses = order.getOrderedItems()
+                .stream()
+                .map(item -> {
+                    MenuItemResponse r = new MenuItemResponse();
+                    r.setId(item.getId());
+                    r.setName(item.getName());
+                    r.setPrice(item.getPrice());
+                    r.setDescription(item.getDescription());
+                    r.setAvailable(item.isAvailable());
+                    r.setStockQuantity(item.getStockQuantity());
+                    return r;
+                })
+                .collect(Collectors.toList());
 
-    @Autowired
-    private MenuItemRepository menuItemRepository;
+        response.setOrderedItems(itemResponses);
+        return response;
+    }
 
+    // ─── Place Order ───────────────────────────────────────
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
-    public Order placeOrder(Long userId, Long restaurantId,
-                            Map<Long, Integer> itemsWithQuantity) {
-
-        // Validate input
-        if (itemsWithQuantity == null || itemsWithQuantity.isEmpty()) {
+    public OrderResponse placeOrder(Long userId, Long restaurantId,
+                                    PlaceOrderRequest request) {
+        if (request.getItems() == null || request.getItems().isEmpty())
             throw new BadRequestException("Order must contain at least one item");
-        }
 
-        // Fetch user & restaurant
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User", userId));
 
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new NotFoundException("Restaurant", restaurantId));
 
-        // NEW: Validate restaurant operating hours (throws RestaurantClosedException if closed)
         restaurant.validateOperatingHours();
 
         double totalPrice = 0;
         int totalItemCount = 0;
         List<MenuItem> orderedItemsList = new ArrayList<>();
 
-        // Process each item with locking
-        for (Map.Entry<Long, Integer> entry : itemsWithQuantity.entrySet()) {
+        for (Map.Entry<Long, Integer> entry : request.getItems().entrySet()) {
             Long menuItemId = entry.getKey();
             Integer quantity = entry.getValue();
 
-            if (quantity == null || quantity <= 0) {
-                throw new BadRequestException("Invalid quantity for menu item: " + menuItemId);
-            }
+            if (quantity == null || quantity <= 0)
+                throw new BadRequestException("Invalid quantity for item: " + menuItemId);
 
-            // LOCK the menu item row
             MenuItem menuItem = menuItemRepository.findByIdWithLock(menuItemId)
                     .orElseThrow(() -> new NotFoundException("MenuItem", menuItemId));
 
-            // Verify restaurant
-            if (!menuItem.getRestaurant().getId().equals(restaurantId)) {
+            if (!menuItem.getRestaurant().getId().equals(restaurantId))
                 throw new BadRequestException(
                         "MenuItem " + menuItemId + " does not belong to this restaurant");
-            }
 
-            // Check and reduce stock
-            if (!menuItem.canOrder(quantity)) {
+            if (!menuItem.canOrder(quantity))
                 throw new BadRequestException(
-                        "Item '" + menuItem.getName() + "' is not available in requested quantity. " +
-                                "Available: " + menuItem.getStockQuantity());
-            }
+                        "Item '" + menuItem.getName() + "' only has " +
+                                menuItem.getStockQuantity() + " left in stock");
 
             menuItem.reduceStock(quantity);
             menuItemRepository.save(menuItem);
 
-            // Add to order
-            for (int i = 0; i < quantity; i++) {
+            for (int i = 0; i < quantity; i++)
                 orderedItemsList.add(menuItem);
-            }
 
             totalPrice += menuItem.getPrice() * quantity;
             totalItemCount += quantity;
         }
 
-        // Create order
         Order order = new Order();
         order.setUser(user);
         order.setRestaurant(restaurant);
@@ -105,59 +121,51 @@ public class OrderServiceImp implements OrderService {
         order.setTotalPrice(totalPrice);
         order.setStatus(OrderStatus.PLACED);
 
-        return orderRepository.save(order);
+        return toResponse(orderRepository.save(order));
+    }
+
+    // ─── Other methods ─────────────────────────────────────
+    @Override
+    public OrderResponse getOrderById(Long orderId) {
+        return toResponse(orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException("Order", orderId)));
     }
 
     @Override
-    public Order getOrderById(Long orderId) {
-        return orderRepository.findById(orderId)
-                .orElseThrow(() -> new NotFoundException("Order", orderId));
-    }
-
-    @Override
-    public List<Order> getOrdersByUser(Long userId) {
-        return orderRepository.findByUser_Id(userId);
+    public List<OrderResponse> getOrdersByUser(Long userId) {
+        return orderRepository.findByUser_Id(userId)
+                .stream()
+                .map(this::toResponse)
+                .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public Order updateOrderStatus(Long orderId, OrderStatus newStatus) {
+    public OrderResponse updateOrderStatus(Long orderId, OrderStatus newStatus) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new NotFoundException("Order", orderId));
 
-        OrderStatus currStatus = order.getStatus();
-
-        if (currStatus == OrderStatus.DELIVERED) {
+        if (order.getStatus() == OrderStatus.DELIVERED)
             throw new InvalidOrderStateException("Cannot update order - already delivered");
-        }
-
-        if (currStatus == OrderStatus.CANCELLED) {
+        if (order.getStatus() == OrderStatus.CANCELLED)
             throw new InvalidOrderStateException("Cannot update order - already cancelled");
-        }
 
-        // If cancelling, restore inventory
-        if (newStatus == OrderStatus.CANCELLED && currStatus == OrderStatus.PLACED) {
+        if (newStatus == OrderStatus.CANCELLED)
             restoreInventory(order);
-        }
 
         order.setStatus(newStatus);
-        return orderRepository.save(order);
+        return toResponse(orderRepository.save(order));
     }
 
     private void restoreInventory(Order order) {
-        // Count quantities per item
         Map<Long, Integer> itemQuantities = new HashMap<>();
-        for (MenuItem item : order.getOrderedItems()) {
+        for (MenuItem item : order.getOrderedItems())
             itemQuantities.merge(item.getId(), 1, Integer::sum);
-        }
 
-        // Restore stock
         for (Map.Entry<Long, Integer> entry : itemQuantities.entrySet()) {
             MenuItem menuItem = menuItemRepository.findByIdWithLock(entry.getKey())
                     .orElseThrow(() -> new NotFoundException("MenuItem", entry.getKey()));
-
-            menuItem.setStockQuantity(menuItem.getStockQuantity() + entry.getValue());
-            menuItem.setAvailable(true);
+            menuItem.restoreStock(entry.getValue()); // ← use the entity's own method
             menuItemRepository.save(menuItem);
         }
     }

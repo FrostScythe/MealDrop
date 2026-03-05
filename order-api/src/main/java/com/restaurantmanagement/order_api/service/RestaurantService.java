@@ -1,8 +1,9 @@
 package com.restaurantmanagement.order_api.service;
 
+import com.restaurantmanagement.order_api.dto.request.MenuItemRequest;
 import com.restaurantmanagement.order_api.dto.request.RestaurantRequest;
+import com.restaurantmanagement.order_api.dto.response.MenuItemResponse;
 import com.restaurantmanagement.order_api.dto.response.RestaurantResponse;
-import com.restaurantmanagement.order_api.entity.MenuItem;
 import com.restaurantmanagement.order_api.entity.Restaurant;
 import com.restaurantmanagement.order_api.exception.BadRequestException;
 import com.restaurantmanagement.order_api.exception.NotFoundException;
@@ -112,28 +113,28 @@ public class RestaurantService {
 
     // ========== MENU OPERATIONS (Delegate to MenuItemService) ==========
 
-    public List<MenuItem> getRestaurantMenu(Long restaurantId) {
+    public List<MenuItemResponse> getRestaurantMenu(Long restaurantId) {
         // Verify restaurant exists first
         getRestaurantDetails(restaurantId);
         // Delegate to MenuItemService
         return menuItemService.getMenuByRestaurant(restaurantId);
     }
 
-    public MenuItem addMenuItemToRestaurant(Long restaurantId, MenuItem menuItem) {
+    public MenuItemResponse addMenuItemToRestaurant(Long restaurantId, MenuItemRequest menuItemRequest) {
         // Verify restaurant exists
         getRestaurantDetails(restaurantId);
         // Delegate to MenuItemService
-        return menuItemService.createMenuItem(restaurantId, menuItem);
+        return menuItemService.createMenuItem(restaurantId, menuItemRequest);
     }
 
-    public MenuItem getMenuItem(Long restaurantId, Long menuItemId) {
+    public MenuItemResponse getMenuItem(Long restaurantId, Long menuItemId) {
         // Delegate to MenuItemService
         return menuItemService.getMenuItem(restaurantId, menuItemId);
     }
 
-    public MenuItem updateMenuItem(Long restaurantId, Long menuItemId, MenuItem menuItem) {
+    public MenuItemResponse updateMenuItem(Long restaurantId, Long menuItemId, MenuItemRequest menuItemRequest) {
         // Delegate to MenuItemService
-        return menuItemService.updateMenuItem(restaurantId, menuItemId, menuItem);
+        return menuItemService.updateMenuItem(restaurantId, menuItemId, menuItemRequest);
     }
 
     public void deleteMenuItem(Long restaurantId, Long menuItemId) {
