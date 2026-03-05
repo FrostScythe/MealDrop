@@ -69,9 +69,6 @@ public class MenuItemService {
     }
 
     public List<MenuItemResponse> getMenuByRestaurant(Long restaurantId) {
-        if (!restaurantRepository.existsById(restaurantId)) {
-            throw new NotFoundException("Restaurant", restaurantId);
-        }
         return menuItemRepository.findByRestaurantId(restaurantId)
                 .stream()
                 .map(this::toResponse)
