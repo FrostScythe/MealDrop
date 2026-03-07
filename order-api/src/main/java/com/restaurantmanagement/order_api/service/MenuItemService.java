@@ -131,6 +131,7 @@ public class MenuItemService {
             throw new ForbiddenRequestException("Access denied: Menu item " + menuItemId +
                     " does not belong to restaurant " + restaurantId);
         }
+        storageService.deleteFile(item.getImageUrl());
         menuItemRepository.delete(item);
     }
 

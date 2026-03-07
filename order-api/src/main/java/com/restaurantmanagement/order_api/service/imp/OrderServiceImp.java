@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,12 +47,19 @@ public class OrderServiceImp implements OrderService {
         response.setDeliveryAt(order.getDeliveryAt());
 
         // Map each menuItemId → quantity entry into MenuItemResponse list
+        // Fetch all menu items in ONE query
+        List<Long> menuItemIds = new ArrayList<>(order.getOrderedItems().keySet());
+        Map<Long, MenuItem> menuItemMap = menuItemRepository.findAllById(menuItemIds)
+                .stream()
+                .collect(Collectors.toMap(MenuItem::getId, m -> m));
+
         List<MenuItemResponse> itemResponses = order.getOrderedItems()
                 .entrySet()
                 .stream()
                 .map(entry -> {
-                    MenuItem item = menuItemRepository.findById(entry.getKey())
-                            .orElseThrow(() -> new NotFoundException("MenuItem", entry.getKey()));
+                    MenuItem item = menuItemMap.get(entry.getKey());
+                    if (item == null)
+                        throw new NotFoundException("MenuItem", entry.getKey());
                     MenuItemResponse r = new MenuItemResponse();
                     r.setId(item.getId());
                     r.setName(item.getName());
@@ -59,6 +67,7 @@ public class OrderServiceImp implements OrderService {
                     r.setDescription(item.getDescription());
                     r.setAvailable(item.isAvailable());
                     r.setStockQuantity(item.getStockQuantity());
+                    r.setImageUrl(item.getImageUrl()); // ← also missing currently
                     r.setQuantity(entry.getValue());
                     return r;
                 })
