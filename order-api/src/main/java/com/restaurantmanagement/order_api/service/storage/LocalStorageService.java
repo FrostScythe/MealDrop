@@ -1,4 +1,4 @@
-package com.restaurantmanagement.order_api.service;
+package com.restaurantmanagement.order_api.service.storage;
 
 
 import com.restaurantmanagement.order_api.exception.BadRequestException;

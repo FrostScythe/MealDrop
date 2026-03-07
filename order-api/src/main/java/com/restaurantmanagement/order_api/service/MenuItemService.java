@@ -9,6 +9,7 @@ import com.restaurantmanagement.order_api.exception.ForbiddenRequestException;
 import com.restaurantmanagement.order_api.exception.NotFoundException;
 import com.restaurantmanagement.order_api.repository.MenuItemRepository;
 import com.restaurantmanagement.order_api.repository.RestaurantRepository;
+import com.restaurantmanagement.order_api.service.storage.StorageService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

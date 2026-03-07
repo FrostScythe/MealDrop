@@ -46,10 +46,8 @@ public class OrderServiceImp implements OrderService {
         response.setOrderAt(order.getOrderAt());
         response.setDeliveryAt(order.getDeliveryAt());
 
-        // Map each menuItemId → quantity entry into MenuItemResponse list
-        // Fetch all menu items in ONE query
-        List<Long> menuItemIds = new ArrayList<>(order.getOrderedItems().keySet());
-        Map<Long, MenuItem> menuItemMap = menuItemRepository.findAllById(menuItemIds)
+        // Fetch all menu items in ONE query — no intermediate list needed
+        Map<Long, MenuItem> menuItemMap = menuItemRepository.findAllById(order.getOrderedItems().keySet())
                 .stream()
                 .collect(Collectors.toMap(MenuItem::getId, m -> m));
 
@@ -67,7 +65,7 @@ public class OrderServiceImp implements OrderService {
                     r.setDescription(item.getDescription());
                     r.setAvailable(item.isAvailable());
                     r.setStockQuantity(item.getStockQuantity());
-                    r.setImageUrl(item.getImageUrl()); // ← also missing currently
+                    r.setImageUrl(item.getImageUrl());
                     r.setQuantity(entry.getValue());
                     return r;
                 })

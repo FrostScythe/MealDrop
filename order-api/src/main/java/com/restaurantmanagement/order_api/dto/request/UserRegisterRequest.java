@@ -1,9 +1,7 @@
 package com.restaurantmanagement.order_api.dto.request;
 
-import com.restaurantmanagement.order_api.entity.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
