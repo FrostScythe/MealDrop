@@ -11,5 +11,7 @@ public class MenuItemResponse {
     private double price;
     private Integer stockQuantity;
     private boolean available;
+    private String imageUrl;
+    private Integer quantity; // populated when returned as part of an OrderResponse
     // getters & setters — NO restaurant field to avoid circular serialization
 }

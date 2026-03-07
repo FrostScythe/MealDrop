@@ -12,6 +12,7 @@ import com.restaurantmanagement.order_api.repository.RestaurantRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,6 +28,9 @@ public class MenuItemService {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
+    @Autowired
+    private StorageService storageService;
+
     // ─── Mappers ───────────────────────────────────────────
     private MenuItemResponse toResponse(MenuItem item) {
         MenuItemResponse response = new MenuItemResponse();
@@ -36,6 +40,7 @@ public class MenuItemService {
         response.setPrice(item.getPrice());
         response.setStockQuantity(item.getStockQuantity());
         response.setAvailable(item.isAvailable());
+        response.setImageUrl(item.getImageUrl());  // ← include image URL in response
         return response;
     }
 
@@ -46,17 +51,29 @@ public class MenuItemService {
         item.setPrice(request.getPrice());
         item.setStockQuantity(request.getStockQuantity());
         item.setAvailable(request.isAvailable());
+        // imageUrl set separately after upload
         return item;
     }
 
     // ─── CRUD ──────────────────────────────────────────────
-    public MenuItemResponse createMenuItem(Long restaurantId, MenuItemRequest request) {
+    public MenuItemResponse createMenuItem(Long restaurantId,
+                                           MenuItemRequest request,
+                                           MultipartFile image) {  // ← new param
         Restaurant restaurant = restaurantRepository.findById(restaurantId)
                 .orElseThrow(() -> new NotFoundException("Restaurant", restaurantId));
+
         MenuItem item = toEntity(request);
         item.setRestaurant(restaurant);
+
+        // Upload image if provided
+        if (image != null && !image.isEmpty()) {
+            String imageUrl = storageService.uploadFile(image, "menu-items");
+            item.setImageUrl(imageUrl);
+        }
+
         return toResponse(menuItemRepository.save(item));
     }
+
 
     public MenuItemResponse getMenuItem(Long restaurantId, Long menuItemId) {
         MenuItem item = menuItemRepository.findById(menuItemId)
@@ -76,14 +93,13 @@ public class MenuItemService {
     }
 
     public MenuItemResponse updateMenuItem(Long restaurantId, Long menuItemId,
-                                           MenuItemRequest request) {
-        // fetch entity directly for internal use
+                                           MenuItemRequest request,
+                                           MultipartFile image) {  // ← new param
         MenuItem existing = menuItemRepository.findById(menuItemId)
                 .orElseThrow(() -> new NotFoundException("MenuItem", menuItemId));
-        if (!existing.getRestaurant().getId().equals(restaurantId)) {
+        if (!existing.getRestaurant().getId().equals(restaurantId))
             throw new ForbiddenRequestException("Access denied: Menu item " + menuItemId +
                     " does not belong to restaurant " + restaurantId);
-        }
 
         existing.setName(request.getName());
         existing.setDescription(request.getDescription());
@@ -97,6 +113,13 @@ public class MenuItemService {
             throw new BadRequestException("Stock cannot be negative");
         existing.setStockQuantity(stock);
         existing.setAvailable(stock != null && stock > 0 && request.isAvailable());
+
+        // If a new image is provided, delete old one and upload new
+        if (image != null && !image.isEmpty()) {
+            storageService.deleteFile(existing.getImageUrl()); // delete old
+            String newImageUrl = storageService.uploadFile(image, "menu-items");
+            existing.setImageUrl(newImageUrl);
+        }
 
         return toResponse(menuItemRepository.save(existing));
     }

@@ -8,8 +8,10 @@ import com.restaurantmanagement.order_api.service.RestaurantService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -64,12 +66,14 @@ public class RestaurantController {
         return ResponseEntity.ok(restaurantService.getRestaurantMenu(restaurantId));
     }
 
-    @PostMapping("/{restaurantId}/menu")
+    @PostMapping(value = "/{restaurantId}/menu",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MenuItemResponse> addMenuItemToRestaurant(
             @PathVariable Long restaurantId,
-            @Valid @RequestBody MenuItemRequest request) {
+            @Valid @ModelAttribute MenuItemRequest request,         // ← @ModelAttribute
+            @RequestParam(required = false) MultipartFile image) { // ← separate param
         return new ResponseEntity<>(
-                restaurantService.addMenuItemToRestaurant(restaurantId, request),
+                restaurantService.addMenuItemToRestaurant(restaurantId, request, image),
                 HttpStatus.CREATED);
     }
 
@@ -80,13 +84,16 @@ public class RestaurantController {
         return ResponseEntity.ok(restaurantService.getMenuItem(restaurantId, menuItemId));
     }
 
-    @PutMapping("/{restaurantId}/menu/{menuItemId}")
+    @PutMapping(value = "/{restaurantId}/menu/{menuItemId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<MenuItemResponse> updateMenuItem(
             @PathVariable Long restaurantId,
             @PathVariable Long menuItemId,
-            @Valid @RequestBody MenuItemRequest request) {
-        return ResponseEntity.ok(
-                restaurantService.updateMenuItem(restaurantId, menuItemId, request));
+            @Valid @ModelAttribute MenuItemRequest request,
+            @RequestParam(required = false) MultipartFile image) {
+        return new ResponseEntity<>(
+                restaurantService.updateMenuItem(restaurantId, menuItemId, request, image),
+                HttpStatus.OK);
     }
 
     @DeleteMapping("/{restaurantId}/menu/{menuItemId}")

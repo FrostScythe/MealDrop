@@ -22,5 +22,7 @@ public class MenuItemRequest {
     private Integer stockQuantity = 20;
 
     private boolean available = true;
-    // getters & setters
+
+    // imageUrl is NOT here — it's set by the service after upload
+    // The actual file comes as @RequestParam MultipartFile in the controller
 }

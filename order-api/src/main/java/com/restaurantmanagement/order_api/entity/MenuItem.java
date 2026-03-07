@@ -36,6 +36,9 @@ public class MenuItem {
     @JoinColumn(name = "restaurant_id", nullable = false)
     private Restaurant restaurant;
 
+    @Column
+    private String imageUrl;
+
     // NEW: Business logic methods for inventory
     public boolean canOrder(int quantity) {
         return available && stockQuantity != null && stockQuantity >= quantity;

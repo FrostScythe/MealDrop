@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 
-import java.util.ArrayList;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,10 +45,13 @@ public class OrderServiceImp implements OrderService {
         response.setOrderAt(order.getOrderAt());
         response.setDeliveryAt(order.getDeliveryAt());
 
-        // Map each MenuItem entity → MenuItemResponse
+        // Map each menuItemId → quantity entry into MenuItemResponse list
         List<MenuItemResponse> itemResponses = order.getOrderedItems()
+                .entrySet()
                 .stream()
-                .map(item -> {
+                .map(entry -> {
+                    MenuItem item = menuItemRepository.findById(entry.getKey())
+                            .orElseThrow(() -> new NotFoundException("MenuItem", entry.getKey()));
                     MenuItemResponse r = new MenuItemResponse();
                     r.setId(item.getId());
                     r.setName(item.getName());
@@ -56,6 +59,7 @@ public class OrderServiceImp implements OrderService {
                     r.setDescription(item.getDescription());
                     r.setAvailable(item.isAvailable());
                     r.setStockQuantity(item.getStockQuantity());
+                    r.setQuantity(entry.getValue());
                     return r;
                 })
                 .collect(Collectors.toList());
@@ -82,7 +86,7 @@ public class OrderServiceImp implements OrderService {
 
         double totalPrice = 0;
         int totalItemCount = 0;
-        List<MenuItem> orderedItemsList = new ArrayList<>();
+        Map<Long, Integer> orderedItemsMap = new HashMap<>();
 
         for (Map.Entry<Long, Integer> entry : request.getItems().entrySet()) {
             Long menuItemId = entry.getKey();
@@ -106,8 +110,7 @@ public class OrderServiceImp implements OrderService {
             menuItem.reduceStock(quantity);
             menuItemRepository.save(menuItem);
 
-            for (int i = 0; i < quantity; i++)
-                orderedItemsList.add(menuItem);
+            orderedItemsMap.put(menuItemId, quantity);
 
             totalPrice += menuItem.getPrice() * quantity;
             totalItemCount += quantity;
@@ -116,7 +119,7 @@ public class OrderServiceImp implements OrderService {
         Order order = new Order();
         order.setUser(user);
         order.setRestaurant(restaurant);
-        order.setOrderedItems(orderedItemsList);
+        order.setOrderedItems(orderedItemsMap);
         order.setItemCount(totalItemCount);
         order.setTotalPrice(totalPrice);
         order.setStatus(OrderStatus.PLACED);
@@ -153,19 +156,18 @@ public class OrderServiceImp implements OrderService {
         if (newStatus == OrderStatus.CANCELLED)
             restoreInventory(order);
 
+        if (newStatus == OrderStatus.DELIVERED)
+            order.setDeliveryAt(LocalDateTime.now());
+
         order.setStatus(newStatus);
         return toResponse(orderRepository.save(order));
     }
 
     private void restoreInventory(Order order) {
-        Map<Long, Integer> itemQuantities = new HashMap<>();
-        for (MenuItem item : order.getOrderedItems())
-            itemQuantities.merge(item.getId(), 1, Integer::sum);
-
-        for (Map.Entry<Long, Integer> entry : itemQuantities.entrySet()) {
+        for (Map.Entry<Long, Integer> entry : order.getOrderedItems().entrySet()) {
             MenuItem menuItem = menuItemRepository.findByIdWithLock(entry.getKey())
                     .orElseThrow(() -> new NotFoundException("MenuItem", entry.getKey()));
-            menuItem.restoreStock(entry.getValue()); // ← use the entity's own method
+            menuItem.restoreStock(entry.getValue());
             menuItemRepository.save(menuItem);
         }
     }

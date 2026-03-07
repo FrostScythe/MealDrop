@@ -10,6 +10,7 @@ import com.restaurantmanagement.order_api.exception.NotFoundException;
 import com.restaurantmanagement.order_api.repository.RestaurantRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -120,11 +121,11 @@ public class RestaurantService {
         return menuItemService.getMenuByRestaurant(restaurantId);
     }
 
-    public MenuItemResponse addMenuItemToRestaurant(Long restaurantId, MenuItemRequest menuItemRequest) {
+    public MenuItemResponse addMenuItemToRestaurant(Long restaurantId, MenuItemRequest menuItemRequest, MultipartFile image) {
         // Verify restaurant exists
         getRestaurantDetails(restaurantId);
         // Delegate to MenuItemService
-        return menuItemService.createMenuItem(restaurantId, menuItemRequest);
+        return menuItemService.createMenuItem(restaurantId, menuItemRequest, image);
     }
 
     public MenuItemResponse getMenuItem(Long restaurantId, Long menuItemId) {
@@ -132,9 +133,9 @@ public class RestaurantService {
         return menuItemService.getMenuItem(restaurantId, menuItemId);
     }
 
-    public MenuItemResponse updateMenuItem(Long restaurantId, Long menuItemId, MenuItemRequest menuItemRequest) {
+    public MenuItemResponse updateMenuItem(Long restaurantId, Long menuItemId, MenuItemRequest menuItemRequest, MultipartFile image) {
         // Delegate to MenuItemService
-        return menuItemService.updateMenuItem(restaurantId, menuItemId, menuItemRequest);
+        return menuItemService.updateMenuItem(restaurantId, menuItemId, menuItemRequest, image);
     }
 
     public void deleteMenuItem(Long restaurantId, Long menuItemId) {
