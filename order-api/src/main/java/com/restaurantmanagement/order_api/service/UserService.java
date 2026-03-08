@@ -32,11 +32,10 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setAddress(request.getAddress());
-        user.setRole(role);  // role comes from the endpoint, not the request body
-        User saved = userRepository.save(user);
-        return toResponse(saved);
+        user.setRole(role);
+        user.setPassword("PLACEHOLDER"); // ← temporary — Spring Security will hash this properly
+        return toResponse(userRepository.save(user));
     }
-
     public UserResponse getUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User", userId));
