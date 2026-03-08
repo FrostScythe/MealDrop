@@ -4,14 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@Setter
 @Table(name = "user_info") // Changed because "user" is a reserved word in some databases
 public class User {
     @Id

@@ -1,7 +1,7 @@
 package com.restaurantmanagement.order_api.service.imp;
 
 import com.restaurantmanagement.order_api.dto.request.PlaceOrderRequest;
-import com.restaurantmanagement.order_api.dto.response.MenuItemResponse;
+import com.restaurantmanagement.order_api.dto.response.OrderItemResponse;
 import com.restaurantmanagement.order_api.dto.response.OrderResponse;
 import com.restaurantmanagement.order_api.entity.*;
 import com.restaurantmanagement.order_api.exception.BadRequestException;
@@ -18,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,27 +45,25 @@ public class OrderServiceImp implements OrderService {
         response.setOrderAt(order.getOrderAt());
         response.setDeliveryAt(order.getDeliveryAt());
 
-        // Fetch all menu items in ONE query — no intermediate list needed
         Map<Long, MenuItem> menuItemMap = menuItemRepository.findAllById(order.getOrderedItems().keySet())
                 .stream()
                 .collect(Collectors.toMap(MenuItem::getId, m -> m));
 
-        List<MenuItemResponse> itemResponses = order.getOrderedItems()
+        List<OrderItemResponse> itemResponses = order.getOrderedItems()
                 .entrySet()
                 .stream()
                 .map(entry -> {
                     MenuItem item = menuItemMap.get(entry.getKey());
                     if (item == null)
                         throw new NotFoundException("MenuItem", entry.getKey());
-                    MenuItemResponse r = new MenuItemResponse();
+                    OrderItemResponse r = new OrderItemResponse(); // ← was MenuItemResponse
                     r.setId(item.getId());
                     r.setName(item.getName());
-                    r.setPrice(item.getPrice());
                     r.setDescription(item.getDescription());
-                    r.setAvailable(item.isAvailable());
-                    r.setStockQuantity(item.getStockQuantity());
+                    r.setPrice(item.getPrice());
                     r.setImageUrl(item.getImageUrl());
                     r.setQuantity(entry.getValue());
+                    // NOTE: no stockQuantity or available — not needed in order context
                     return r;
                 })
                 .collect(Collectors.toList());

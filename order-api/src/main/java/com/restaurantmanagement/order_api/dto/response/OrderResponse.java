@@ -18,7 +18,7 @@ public class OrderResponse {
     private String userName;
     private Long restaurantId;
     private String restaurantName;
-    private List<MenuItemResponse> orderedItems;
+    private List<OrderItemResponse> orderedItems;
     private int itemCount;
     private double totalPrice;
     private OrderStatus status;
