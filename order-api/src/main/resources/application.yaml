@@ -17,6 +17,10 @@ spring:
       max-file-size: 5MB       # max single file
       max-request-size: 10MB   # max total request
 
+  jwt:
+    secret: "dGhpcyBpcyBhIHZlcnkgbG9uZyBzZWNyZXQga2V5IGZvciBqd3Qgc2lnbmluZw=="
+    expiration-ms: 86400000
+
 # Storage config — swap values when moving to GCP
 storage:
   local:
