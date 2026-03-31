@@ -20,32 +20,36 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    @Autowired private AuthenticationManager authManager;
-    @Autowired private JwtUtils jwtUtils;
-    @Autowired private UserRepository userRepository;
-    @Autowired private PasswordEncoder passwordEncoder;
+    @Autowired
+    private AuthenticationManager authManager;
+
+    @Autowired
+    private JwtUtils jwtUtils;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(
             @Valid @RequestBody LoginRequest request) {
 
-        // 1. This line does all the work:
-        //    - loads user via CustomUserDetailsService
-        //    - verifies password via BCrypt
-        //    - throws BadCredentialsException if wrong
         Authentication auth = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()));
+                        request.getEmail(),    // who you claim to be
+                        request.getPassword()  // proof of identity
+                )
+        );
 
-        // 2. The principal is your User entity (since User implements UserDetails)
         User user = (User) auth.getPrincipal();
 
-        // 3. Generate JWT
         String token = jwtUtils.generateToken(user);
 
         return ResponseEntity.ok(
-                new AuthResponse(token, user.getRole().name(), user.getName()));
+                new AuthResponse(token, user.getRole().name(), user.getName())
+        );
     }
 
     @PostMapping("/register")
@@ -57,14 +61,41 @@ public class AuthController {
         user.setEmail(request.getEmail());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setAddress(request.getAddress());
+
         user.setRole(Role.CUSTOMER);
-        // Hash the password before saving — NEVER store plain text
+
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         userRepository.save(user);
 
         String token = jwtUtils.generateToken(user);
+
         return ResponseEntity.ok(
-                new AuthResponse(token, user.getRole().name(), user.getName()));
+                new AuthResponse(token, user.getRole().name(), user.getName())
+        );
+    }
+
+
+    @PostMapping("/register/owner")
+    // @PreAuthorize("hasRole('ADMIN')")  ← uncomment this after adding admin user
+    public ResponseEntity<AuthResponse> registerOwner(
+            @Valid @RequestBody UserRegisterRequest request) {
+
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setAddress(request.getAddress());
+
+        // The only difference from /register — role is OWNER not CUSTOMER.
+        user.setRole(Role.OWNER);
+
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        userRepository.save(user);
+
+        String token = jwtUtils.generateToken(user);
+        return ResponseEntity.ok(
+                new AuthResponse(token, user.getRole().name(), user.getName())
+        );
     }
 }
