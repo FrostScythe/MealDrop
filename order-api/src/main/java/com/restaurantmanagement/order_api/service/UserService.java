@@ -33,7 +33,6 @@ public class UserService {
         user.setPhoneNumber(request.getPhoneNumber());
         user.setAddress(request.getAddress());
         user.setRole(role);
-        user.setPassword("PLACEHOLDER"); // ← temporary — Spring Security will hash this properly
         return toResponse(userRepository.save(user));
     }
     public UserResponse getUserById(Long userId) {
